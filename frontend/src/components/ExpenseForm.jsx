@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { EXPENSE_CATEGORY_OPTIONS } from '../services/api.js';
 
-export default function ExpenseForm({ initialValues = {}, submitLabel = 'Save', onSubmit }) {
+/** Stable default so useMemo/useEffect deps do not change every render when initialValues is omitted. */
+const EMPTY_INITIAL_VALUES = Object.freeze({});
+
+export default function ExpenseForm({ initialValues = EMPTY_INITIAL_VALUES, submitLabel = 'Save', onSubmit }) {
   const defaults = useMemo(
     () => ({
       title: '',
