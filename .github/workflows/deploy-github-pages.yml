@@ -1,6 +1,6 @@
-# Deploy SPA to GitHub Pages. Repo Settings → Pages → Source: GitHub Actions.
-# Set repository secret VITE_API_URL to your backend origin (HTTPS, no /api suffix).
-# Optional repository variable VITE_BASE_PATH — default is /<repo>/ for project pages.
+# Publishes frontend/dist to branch gh-pages. Avoids deploy-pages API (404 if Pages not set to "GitHub Actions").
+# Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: gh-pages / folder: / (root)
+# Secret VITE_API_URL = backend HTTPS root (no /api). Optional var VITE_BASE_PATH overrides default /<repo>/.
 
 name: Deploy frontend to GitHub Pages
 
@@ -9,9 +9,7 @@ on:
     branches: [main, master]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -20,15 +18,12 @@ concurrency:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -36,24 +31,22 @@ jobs:
         working-directory: frontend
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          # Project site: https://OWNER.github.io/REPO/ — must match Pages URL path
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
         run: |
           REPO="${{ github.event.repository.name }}"
           BASE="${VITE_BASE_PATH}"
           if [ -z "$BASE" ]; then BASE="/${REPO}/"; fi
           export VITE_BASE_PATH="$BASE"
-          if [ -z "${{ secrets.VITE_API_URL }}" ]; then echo "::warning::Secret VITE_API_URL is unset; UI will fail until you add it." >&2; fi
+          if [ -z "${{ secrets.VITE_API_URL }}" ]; then echo "::warning::Repository secret VITE_API_URL is unset; set it in repo Settings → Secrets." >&2; fi
           npm ci
           npm run build
 
       - name: No Jekyll processing
         run: touch frontend/dist/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Push to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: frontend/dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/dist
+          force_orphan: true
