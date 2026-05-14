@@ -1,6 +1,6 @@
-# Publishes frontend/dist to branch gh-pages. Avoids deploy-pages API (404 if Pages not set to "GitHub Actions").
-# Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: gh-pages / folder: / (root)
-# Secret VITE_API_URL = backend HTTPS root (no /api). Optional var VITE_BASE_PATH overrides default /<repo>/.
+# Publishes frontend/dist to branch gh-pages.
+# Settings → Pages → Source: Deploy from a branch → gh-pages / root
+# Repo secret VITE_API_URL = backend HTTPS root (no /api). Optional repo var VITE_BASE_PATH.
 
 name: Deploy frontend to GitHub Pages
 
@@ -12,12 +12,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: gh-pages-publish
+  cancel-in-progress: false
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -44,9 +45,11 @@ jobs:
       - name: No Jekyll processing
         run: touch frontend/dist/.nojekyll
 
-      - name: Push to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: frontend/dist
-          force_orphan: true
+          folder: frontend/dist
+          branch: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+          single-commit: true
+          clean: true
