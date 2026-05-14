@@ -15,11 +15,13 @@ export default function CategoryChart({ categories }) {
   return (
     <div className="card">
       <div className="section-title">
-        <h2>Category breakdown</h2>
-        <span className="muted">Relative bar widths vs month max category</span>
+        <h2>Spending by category</h2>
+        <span className="muted">Bars compare each category to your highest one this month</span>
       </div>
       <div className="chart">
-        {rows.length === 0 ? <div className="muted">No data for selected range.</div> : null}
+        {rows.length === 0 ? (
+          <div className="muted">Nothing recorded for this month yet.</div>
+        ) : null}
         {rows.map((r) => {
           const pct = max > 0 ? Math.round((Number(r.total) / max) * 1000) / 10 : 0;
           return (

@@ -11,7 +11,7 @@ function Shell() {
       <header className="top-bar">
         <div className="brand">
           <strong>Student Expense Tracker</strong>
-          <span>Vite UI + Spring Boot API</span>
+          <span>See what you spent, by category and month</span>
         </div>
         <nav className="nav" aria-label="Primary">
           <NavLink end className={({ isActive }) => `nav-link${isActive ? ' primary' : ''}`} to="/">
@@ -45,7 +45,7 @@ export default function App() {
         path="*"
         element={
           <div className="card error" style={{ margin: 16 }}>
-            Not found — check React Router wiring.
+            Page not found. Use the menu above to go back.
           </div>
         }
       />

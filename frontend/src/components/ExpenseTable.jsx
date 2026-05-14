@@ -10,14 +10,16 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
   return (
     <div className="card">
       <div className="section-title">
-        <h2>Expenses</h2>
-        <span className="muted">{loading ? 'Loading…' : `${rows.length} row(s)`}</span>
+        <h2>Your expenses</h2>
+        <span className="muted">{loading ? 'Loading…' : `${rows.length} shown`}</span>
       </div>
 
       {error ? <div className="error">{String(error)}</div> : null}
 
       {!error && rows.length === 0 && !loading ? (
-        <div className="muted">No expenses match these filters.</div>
+        <div className="muted">
+          Nothing matches these filters—or you have not added any expenses yet.
+        </div>
       ) : null}
 
       {rows.length > 0 ? (
@@ -25,12 +27,12 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
           <table>
             <thead>
               <tr>
-                <th>Title</th>
+                <th>What</th>
                 <th>Category</th>
                 <th>Amount</th>
                 <th>Date</th>
                 <th>Notes</th>
-                <th>Actions</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -38,9 +40,6 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
                 <tr key={r.id}>
                   <td>
                     <div style={{ fontWeight: 800 }}>{r.title}</div>
-                    <div className="muted">
-                      ID <span className="pill">#{r.id}</span>
-                    </div>
                   </td>
                   <td>{r.categoryDisplayName ?? r.category}</td>
                   <td>{money(r.amount)}</td>

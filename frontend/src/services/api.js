@@ -13,6 +13,10 @@ function resolvedApiBase() {
 
 export const api = axios.create({
   baseURL: resolvedApiBase(),
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
 });
 
 export const EXPENSE_CATEGORY_OPTIONS = [

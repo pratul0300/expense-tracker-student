@@ -18,6 +18,7 @@ export default function ExpenseForm({ initialValues = EMPTY_INITIAL_VALUES, subm
   );
 
   const [form, setForm] = useState(defaults);
+  const [saving, setSaving] = useState(false);
 
   React.useEffect(() => {
     setForm(defaults);
@@ -29,14 +30,27 @@ export default function ExpenseForm({ initialValues = EMPTY_INITIAL_VALUES, subm
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (saving) return;
+
+    const amountNum = Number(form.amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      return;
+    }
+
     const payload = {
       title: form.title.trim(),
-      amount: Number(form.amount),
+      amount: amountNum,
       category: form.category,
       date: form.date,
       description: form.description.trim() === '' ? null : form.description.trim(),
     };
-    await onSubmit?.(payload);
+
+    setSaving(true);
+    try {
+      await onSubmit?.(payload);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -46,13 +60,21 @@ export default function ExpenseForm({ initialValues = EMPTY_INITIAL_VALUES, subm
       </div>
 
       <label>
-        Title
+        What did you spend on?
         <input value={form.title} onChange={(e) => patch('title', e.target.value)} required maxLength={200} />
       </label>
 
       <label>
         Amount (USD)
-        <input value={form.amount} onChange={(e) => patch('amount', e.target.value)} required min={0.01} step={0.01} type="number" />
+        <input
+          value={form.amount}
+          onChange={(e) => patch('amount', e.target.value)}
+          required
+          min={0.01}
+          step={0.01}
+          type="number"
+          inputMode="decimal"
+        />
       </label>
 
       <label>
@@ -72,12 +94,12 @@ export default function ExpenseForm({ initialValues = EMPTY_INITIAL_VALUES, subm
       </label>
 
       <label>
-        Description (optional)
+        Notes (optional)
         <textarea value={form.description} onChange={(e) => patch('description', e.target.value)} maxLength={2000} />
       </label>
 
-      <button className="btn" type="submit">
-        {submitLabel}
+      <button className="btn" type="submit" disabled={saving}>
+        {saving ? 'Saving…' : submitLabel}
       </button>
     </form>
   );

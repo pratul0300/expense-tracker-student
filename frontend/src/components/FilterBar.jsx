@@ -17,6 +17,7 @@ const MONTHS = [
 
 export default function FilterBar({
   title = 'Filters',
+  subtitle,
   year,
   month,
   category,
@@ -29,7 +30,7 @@ export default function FilterBar({
     <div className="card">
       <div className="section-title">
         <h2>{title}</h2>
-        <span className="muted">Optional filters match the APIs</span>
+        {subtitle ? <span className="muted">{subtitle}</span> : null}
       </div>
       <div className="filter-bar">
         {showYearMonth ? (
@@ -39,7 +40,7 @@ export default function FilterBar({
               <input
                 inputMode="numeric"
                 pattern="\\d{4}"
-                placeholder="YYYY"
+                placeholder="e.g. 2026"
                 value={year ?? ''}
                 onChange={(e) => onChange?.({ field: 'year', value: e.target.value })}
               />
@@ -52,7 +53,7 @@ export default function FilterBar({
                   onChange?.({ field: 'month', value: e.target.value === '' ? '' : Number(e.target.value) })
                 }
               >
-                {monthAllowAll ? <option value="">All months</option> : null}
+                {monthAllowAll ? <option value="">Any month</option> : null}
                 {MONTHS.map(([val, lab]) => (
                   <option key={val} value={val}>
                     {lab}

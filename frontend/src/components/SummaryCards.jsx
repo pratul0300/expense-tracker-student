@@ -9,23 +9,19 @@ export default function SummaryCards({ year, month, totalAmount }) {
   return (
     <div className="grid-2">
       <div className="card metric">
-        <div className="muted">Total spending</div>
+        <div className="muted">Total spending this month</div>
         <div className="big">{money(totalAmount)}</div>
         <div className="muted">
-          Window:{' '}
           <strong>
             {month}/{year}
           </strong>
         </div>
       </div>
       <div className="card metric">
-        <div className="muted">Tip</div>
-        <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>
-          This total matches{' '}
-          <code style={{ padding: '2px 6px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.14)' }}>
-            GET /api/summary/monthly
-          </code>
-          . Filters are synced with expense list/export.
+        <div className="muted">At a glance</div>
+        <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.5 }}>
+          This number is everything you logged for that month. Use{' '}
+          <strong>Expenses</strong> to see the full list or add more items.
         </div>
       </div>
     </div>

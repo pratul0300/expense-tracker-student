@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ExpenseForm from '../components/ExpenseForm.jsx';
 import { fetchExpense, updateExpense } from '../services/api.js';
+import { readableApiError } from '../utils/readableApiError.js';
 
 export default function EditExpense() {
   const { id } = useParams();
@@ -29,7 +30,7 @@ export default function EditExpense() {
         });
       } catch (e) {
         if (!alive) return;
-        setError(e?.response?.data?.message ?? e?.message ?? String(e));
+        setError(readableApiError(e));
       } finally {
         if (!alive) return;
         setLoading(false);
@@ -43,7 +44,7 @@ export default function EditExpense() {
   return (
     <div className="page">
       <div className="section-title">
-        <h2 style={{ margin: 0, fontSize: 18 }}>Edit expense #{numericId}</h2>
+        <h2 style={{ margin: 0, fontSize: 18 }}>Edit expense</h2>
         <button type="button" className="btn secondary" onClick={() => nav(-1)}>
           Back
         </button>
@@ -60,9 +61,9 @@ export default function EditExpense() {
             setError(null);
             try {
               await updateExpense(numericId, payload);
-              nav('/expenses');
+              nav('/expenses', { state: { justSaved: true } });
             } catch (e) {
-              setError(e?.response?.data?.message ?? e?.message ?? String(e));
+              setError(readableApiError(e));
             }
           }}
         />
