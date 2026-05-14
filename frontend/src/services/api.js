@@ -3,7 +3,6 @@ import axios from 'axios';
 /** Normalize backend root; axios paths use /expenses, /summary, … under /api. */
 function resolvedApiBase() {
   const raw = typeof import.meta.env.VITE_API_URL === 'string' ? import.meta.env.VITE_API_URL.trim() : '';
-  // Empty / unset → same-origin `/api`; Vite dev proxy forwards to localhost:8080.
   if (!raw) return '/api';
   const root = raw.replace(/\/+$/, '');
   const lower = root.toLowerCase();
@@ -35,7 +34,7 @@ export async function fetchExpenses({ year, month, category } = {}) {
   if (month != null && month !== '') params.month = month;
   if (category) params.category = category;
   const { data } = await api.get('/expenses', { params });
-  return data;
+  return Array.isArray(data) ? data : [];
 }
 
 export async function fetchExpense(id) {
@@ -45,12 +44,12 @@ export async function fetchExpense(id) {
 
 export async function createExpense(payload) {
   const { data } = await api.post('/expenses', payload);
-  return data;
+  return data ?? null;
 }
 
 export async function updateExpense(id, payload) {
   const { data } = await api.put(`/expenses/${id}`, payload);
-  return data;
+  return data ?? null;
 }
 
 export async function deleteExpense(id) {
