@@ -12,28 +12,34 @@ public class CorsConfig {
 
   @Bean
   public WebMvcConfigurer corsConfigurer(
-      @Value("${cors.allowed.origin-patterns}") String allowedPatternsCsv) {
+      @Value("${cors.allowed.origin-patterns:*}") String allowedPatternsCsv) {
     return new WebMvcConfigurer() {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
-        String[] patterns =
-            Arrays.stream(allowedPatternsCsv.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
+        String raw = allowedPatternsCsv == null ? "" : allowedPatternsCsv.trim();
 
         var chain =
             registry
                 .addMapping("/api/**")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .allowCredentials(false)
+                .maxAge(3600);
 
-        if (patterns.length == 0) {
-          chain.allowedOriginPatterns("http://localhost:5173", "http://localhost:3000");
+        if (raw.isEmpty() || "*".equals(raw)) {
+          chain.allowedOriginPatterns("*");
         } else {
-          chain.allowedOriginPatterns(patterns);
+          String[] patterns =
+              Arrays.stream(raw.split(","))
+                  .map(String::trim)
+                  .filter(s -> !s.isEmpty())
+                  .toArray(String[]::new);
+          if (patterns.length == 0) {
+            chain.allowedOriginPatterns("*");
+          } else {
+            chain.allowedOriginPatterns(patterns);
+          }
         }
-        chain.allowCredentials(false).maxAge(3600);
       }
     };
   }
