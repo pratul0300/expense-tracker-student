@@ -4,7 +4,7 @@
 #   fly secrets set CORS_ALLOWED_ORIGINS="https://YOURNAME.github.io,https://*.github.io" -a student-expense-tracker-api
 
 app = "student-expense-tracker-api"
-primary_region = "iad"
+primary_region = "ord"
 
 [build]
 
