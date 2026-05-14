@@ -1,5 +1,7 @@
-# Fly.io app — deploy from backend/:  fly deploy
-# Set secrets:  fly secrets set CORS_ALLOWED_ORIGINS="https://YOURNAME.github.io/REPO,https://*.github.io"
+# Deploy: cd backend && fly deploy
+# Postgres: fly postgres create … ; fly postgres attach <db> -a student-expense-tracker-api
+# CORS origins must be host-only (no /repo path). Example:
+#   fly secrets set CORS_ALLOWED_ORIGINS="https://YOURNAME.github.io,https://*.github.io" -a student-expense-tracker-api
 
 app = "student-expense-tracker-api"
 primary_region = "iad"

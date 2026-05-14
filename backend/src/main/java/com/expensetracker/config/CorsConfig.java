@@ -33,6 +33,7 @@ public class CorsConfig {
         } else {
           chain.allowedOriginPatterns(patterns);
         }
+        chain.allowCredentials(false).maxAge(3600);
       }
     };
   }

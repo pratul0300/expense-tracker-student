@@ -1,6 +1,5 @@
-# Publishes frontend/dist to branch gh-pages (plain git push — avoids third-party deploy timeouts).
-# Settings → Pages → Source: Deploy from a branch → gh-pages / root
-# Secret VITE_API_URL = backend HTTPS origin (no /api). Optional var VITE_BASE_PATH.
+# GitHub Pages: Settings → Pages → Branch gh-pages / (root)
+# Required repo secret VITE_API_URL = Fly API origin only, e.g. https://student-expense-tracker-api.fly.dev (no /api)
 
 name: Deploy frontend to GitHub Pages
 
@@ -28,6 +27,13 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Require VITE_API_URL
+        run: |
+          if [ -z "${{ secrets.VITE_API_URL }}" ]; then
+            echo "::error::Create repository secret VITE_API_URL with your Fly backend origin, e.g. https://student-expense-tracker-api.fly.dev (no trailing slash, no /api)."
+            exit 1
+          fi
+
       - name: Build frontend
         working-directory: frontend
         env:
@@ -38,7 +44,6 @@ jobs:
           BASE="${VITE_BASE_PATH}"
           if [ -z "$BASE" ]; then BASE="/${REPO}/"; fi
           export VITE_BASE_PATH="$BASE"
-          if [ -z "${{ secrets.VITE_API_URL }}" ]; then echo "::warning::Repository secret VITE_API_URL is unset." >&2; fi
           npm ci
           npm run build
 

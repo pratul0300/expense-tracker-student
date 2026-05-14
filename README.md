@@ -11,6 +11,17 @@ The **markdown instructions in this file are not the hosted app**. GitHub shows 
 
 After the “Deploy frontend to GitHub Pages” workflow succeeds, wait a minute and hard-refresh the **`.github.io`** URL.
 
+## Production URLs (working setup)
+
+| What | URL / value |
+|------|----------------|
+| **Frontend (GitHub Pages)** | `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/` |
+| **Backend API (Fly.io)** | `https://student-expense-tracker-api.fly.dev` (or your chosen `fly.toml` app name: `https://<app>.fly.dev`) |
+| **GitHub secret `VITE_API_URL`** | Same as backend **origin** only: `https://student-expense-tracker-api.fly.dev` — **no** `/api`, **no** trailing slash |
+| **Fly secret `CORS_ALLOWED_ORIGINS`** | Browser origins only (no paths): e.g. `https://YOUR_USERNAME.github.io,https://*.github.io` |
+
+If nav links load the wrong page or refresh returns 404, ensure **Settings → Pages** uses branch **`gh-pages`** at **/ (root)** and that the workflow builds with **`VITE_API_URL`** set (the build now **fails** if this secret is missing).
+
 ---
 
 This folder contains a complete Spring Boot 3 + React (Vite, JS/JSX) implementation.
