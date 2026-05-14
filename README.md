@@ -1,5 +1,18 @@
 # Student Expense Tracker (generated)
 
+## If you see “how to run” on GitHub instead of the app
+
+The **markdown instructions in this file are not the hosted app**. GitHub shows this README on the **repository** page.
+
+- **Open the real site at:** `https://<your-username>.github.io/<repository-name>/`  
+  (example: `https://pratul0300.github.io/expense-tracker-student/`)
+- **Pages must use the built site:** **Settings → Pages → Build and deployment → Branch: `gh-pages` → Folder: `/ (root)` → Save.**  
+  If **Branch** is **`main`**, you will only see this README (there is no `index.html` at the repo root).
+
+After the “Deploy frontend to GitHub Pages” workflow succeeds, wait a minute and hard-refresh the **`.github.io`** URL.
+
+---
+
 This folder contains a complete Spring Boot 3 + React (Vite, JS/JSX) implementation.
 
 > **Note:** This agent could not write into `~/.cursor/projects/empty-window` due to OS-level permission restrictions on that directory. Copy this folder into your Cursor workspace root if needed.
