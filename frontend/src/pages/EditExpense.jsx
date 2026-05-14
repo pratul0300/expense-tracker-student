@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ExpenseForm from '../components/ExpenseForm.jsx';
+import { notifyExpensesChanged } from '../expensesEvents.js';
 import { fetchExpense, updateExpense } from '../services/api.js';
 import { readableApiError } from '../utils/readableApiError.js';
 
@@ -61,9 +62,11 @@ export default function EditExpense() {
             setError(null);
             try {
               await updateExpense(numericId, payload);
-              nav('/expenses', { state: { justSaved: true } });
+              notifyExpensesChanged();
+              nav('/expenses', { state: { justSaved: true, t: Date.now() } });
             } catch (e) {
               setError(readableApiError(e));
+              throw e;
             }
           }}
         />

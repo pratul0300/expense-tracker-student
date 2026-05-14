@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ExpenseForm from '../components/ExpenseForm.jsx';
 import { createExpense } from '../services/api.js';
+import { notifyExpensesChanged } from '../expensesEvents.js';
 import { readableApiError } from '../utils/readableApiError.js';
 
 export default function AddExpense() {
@@ -17,10 +18,6 @@ export default function AddExpense() {
         </button>
       </div>
 
-      <p className="muted" style={{ marginTop: 0 }}>
-        Fill in the amount and date you paid. Everything saves to your expense list when you tap Save.
-      </p>
-
       {error ? <div className="error">{error}</div> : null}
 
       <ExpenseForm
@@ -29,9 +26,11 @@ export default function AddExpense() {
           setError(null);
           try {
             await createExpense(payload);
-            nav('/expenses', { state: { justAdded: true } });
+            notifyExpensesChanged();
+            nav('/expenses', { state: { justAdded: true, t: Date.now() } });
           } catch (e) {
             setError(readableApiError(e));
+            throw e;
           }
         }}
       />

@@ -11,32 +11,15 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
     <div className="card">
       <div className="section-title">
         <h2>Your expenses</h2>
-        <span className="muted">{rows.length} listed</span>
       </div>
-
-      {loading && rows.length === 0 && !error ? (
-        <p className="muted" style={{ marginTop: 0 }}>
-          Loading your expense list…
-        </p>
-      ) : null}
 
       {error ? <div className="error">{String(error)}</div> : null}
 
-      {!error && rows.length === 0 && !loading ? (
-        <div className="muted">
-          Nothing matches these filters—or you have not added any expenses yet.
-        </div>
-      ) : null}
-
-      {loading && rows.length > 0 ? (
-        <p className="muted" style={{ margin: '8px 0 0', fontSize: 12 }}>
-          Updating list…
-        </p>
-      ) : null}
+      {!error && rows.length === 0 && !loading ? <div className="muted">No expenses.</div> : null}
 
       {rows.length > 0 ? (
-        <div className="table-wrap">
-          <table aria-busy={loading}>
+        <div className={`table-wrap${loading ? ' muted' : ''}`}>
+          <table style={{ opacity: loading ? 0.65 : 1 }}>
             <thead>
               <tr>
                 <th>What</th>

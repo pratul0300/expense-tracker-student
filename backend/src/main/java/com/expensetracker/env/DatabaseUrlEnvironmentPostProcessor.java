@@ -11,12 +11,12 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
 /**
- * Maps Render-style {@code DATABASE_URL} ({@code postgres://}… ) into {@code spring.datasource.*}
- * under the {@code prod} profile whenever no non-H2 JDBC URL is already configured.
+ * Maps Heroku/Fly-style {@code DATABASE_URL} ({@code postgres://} / {@code postgresql://}) into
+ * {@code spring.datasource.*} under the {@code prod} profile when no non-H2 JDBC URL is set.
  */
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-  private static final String SOURCE_NAME = "expense-tracker-render-database-url";
+  private static final String SOURCE_NAME = "expense-tracker-database-url-env";
 
   @Override
   public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {

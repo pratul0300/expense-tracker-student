@@ -8,6 +8,7 @@ import {
   fetchMonthlySummary,
 } from '../services/api.js';
 import { readableApiError } from '../utils/readableApiError.js';
+import { EXPENSES_CHANGED } from '../expensesEvents.js';
 
 function money(n) {
   const v = Number(n ?? 0);
@@ -54,6 +55,14 @@ export default function Dashboard() {
     reload();
   }, [reload]);
 
+  useEffect(() => {
+    const onChanged = () => {
+      reload();
+    };
+    window.addEventListener(EXPENSES_CHANGED, onChanged);
+    return () => window.removeEventListener(EXPENSES_CHANGED, onChanged);
+  }, [reload]);
+
   function onFilter({ field, value }) {
     if (field === 'year') {
       const ys = String(value ?? '').trim();
@@ -69,15 +78,8 @@ export default function Dashboard() {
       <div className="section-title">
         <h2 style={{ margin: 0, fontSize: 18 }}>Dashboard</h2>
       </div>
-      {loading ? (
-        <p className="muted" style={{ margin: '0 0 4px' }}>
-          Updating your numbers…
-        </p>
-      ) : null}
-
       <FilterBar
         title="Month"
-        subtitle="Choose a month to see spending totals, categories, and recent items."
         year={String(year)}
         month={String(month)}
         onChange={onFilter}
@@ -98,10 +100,9 @@ export default function Dashboard() {
       <div className="card">
         <div className="section-title">
           <h2>Recent expenses</h2>
-          <span className="muted">Up to 10 for the month you selected</span>
         </div>
         {!loading && recentRows.length === 0 ? (
-          <div className="muted">No expenses for this month yet. Add one from <strong>Add expense</strong>.</div>
+          <div className="muted">No expenses for this month.</div>
         ) : null}
         <div className="recent-grid">
           {recentRows.map((r) => (

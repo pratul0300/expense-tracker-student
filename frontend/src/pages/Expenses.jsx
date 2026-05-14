@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ExpenseTable from '../components/ExpenseTable.jsx';
 import FilterBar from '../components/FilterBar.jsx';
+import { notifyExpensesChanged } from '../expensesEvents.js';
 import { deleteExpense, downloadExpenseCsv, fetchExpenses } from '../services/api.js';
 import { readableApiError } from '../utils/readableApiError.js';
 
@@ -18,13 +19,6 @@ export default function Expenses() {
   const [error, setError] = useState(null);
   const [banner, setBanner] = useState(null);
 
-  React.useEffect(() => {
-    if (location.state?.justAdded || location.state?.justSaved) {
-      setBanner(location.state.justAdded ? 'Expense saved.' : 'Changes saved.');
-      nav(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.state, location.pathname, nav]);
-
   const qp = React.useMemo(() => {
     return {
       year: year.trim() === '' ? undefined : Number(year),
@@ -38,7 +32,7 @@ export default function Expenses() {
     setError(null);
     try {
       const data = await fetchExpenses(qp);
-      setRows(data ?? []);
+      setRows(Array.isArray(data) ? data : []);
     } catch (e) {
       setError(readableApiError(e));
     } finally {
@@ -49,6 +43,23 @@ export default function Expenses() {
   useEffect(() => {
     reload();
   }, [reload]);
+
+  useEffect(() => {
+    const s = location.state;
+    if (!s?.justAdded && !s?.justSaved) return;
+
+    setBanner(s.justAdded ? 'Expense saved.' : 'Changes saved.');
+
+    let cancelled = false;
+    void reload().finally(() => {
+      if (cancelled) return;
+      nav(location.pathname, { replace: true, state: {} });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.state?.t, location.pathname, nav, reload]);
 
   function onFilter({ field, value }) {
     if (field === 'year') setYear(value);
@@ -61,6 +72,7 @@ export default function Expenses() {
     if (!ok) return;
     try {
       await deleteExpense(id);
+      notifyExpensesChanged();
       await reload();
       setBanner('Expense deleted.');
     } catch (e) {
@@ -99,14 +111,7 @@ export default function Expenses() {
         </div>
       ) : null}
 
-      <FilterBar
-        title="Filters"
-        subtitle="Year narrows results; leave month blank to include the whole year. Category is optional."
-        year={year}
-        month={month}
-        category={category}
-        onChange={onFilter}
-      />
+      <FilterBar title="Filters" year={year} month={month} category={category} onChange={onFilter} />
 
       <ExpenseTable rows={rows} loading={loading} error={error} onDelete={onDelete} />
     </div>
