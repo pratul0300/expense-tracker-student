@@ -3,8 +3,11 @@
  */
 export function readableApiError(error) {
   if (!error?.response) {
+    if (error?.code === 'ECONNABORTED' || String(error?.message ?? '').includes('timeout')) {
+      return 'The server took too long to reply. Save your Wi‑Fi, try again shortly, or check that your live site backend is running.';
+    }
     if (error?.code === 'ERR_NETWORK' || error?.message === 'Network Error') {
-      return "We can't reach the server right now. Check your connection, wait a minute, and try again.";
+      return "We can't reach the server. If you're online, confirm the app's backend URL and that it allows saving from your site (often a CORS or URL setting).";
     }
     return error?.message || 'Something went wrong. Please try again.';
   }

@@ -11,8 +11,14 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
     <div className="card">
       <div className="section-title">
         <h2>Your expenses</h2>
-        <span className="muted">{loading ? 'Loading…' : `${rows.length} shown`}</span>
+        <span className="muted">{rows.length} listed</span>
       </div>
+
+      {loading && rows.length === 0 && !error ? (
+        <p className="muted" style={{ marginTop: 0 }}>
+          Loading your expense list…
+        </p>
+      ) : null}
 
       {error ? <div className="error">{String(error)}</div> : null}
 
@@ -22,9 +28,15 @@ export default function ExpenseTable({ rows, loading, error, onDelete }) {
         </div>
       ) : null}
 
+      {loading && rows.length > 0 ? (
+        <p className="muted" style={{ margin: '8px 0 0', fontSize: 12 }}>
+          Updating list…
+        </p>
+      ) : null}
+
       {rows.length > 0 ? (
         <div className="table-wrap">
-          <table>
+          <table aria-busy={loading}>
             <thead>
               <tr>
                 <th>What</th>
