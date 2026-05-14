@@ -11,8 +11,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
 /**
- * Maps Render/Heroku-style {@code DATABASE_URL} ({@code postgres://} / {@code postgresql://})
- * into {@code spring.datasource.*} when JDBC URL was not explicitly set.
+ * Maps Render-style {@code DATABASE_URL} ({@code postgres://}… ) into {@code spring.datasource.*}
+ * under the {@code prod} profile whenever no non-H2 JDBC URL is already configured.
  */
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
@@ -27,7 +27,11 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
     }
 
     String existingUrl = environment.getProperty("spring.datasource.url");
-    if (existingUrl != null && !existingUrl.isBlank()) {
+    boolean hasNonH2Url =
+        existingUrl != null
+            && !existingUrl.isBlank()
+            && !existingUrl.regionMatches(true, 0, "jdbc:h2:", 0, "jdbc:h2:".length());
+    if (hasNonH2Url) {
       return;
     }
 
