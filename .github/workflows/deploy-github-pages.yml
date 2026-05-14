@@ -1,6 +1,6 @@
-# Publishes frontend/dist to branch gh-pages.
+# Publishes frontend/dist to branch gh-pages (plain git push — avoids third-party deploy timeouts).
 # Settings → Pages → Source: Deploy from a branch → gh-pages / root
-# Repo secret VITE_API_URL = backend HTTPS root (no /api). Optional repo var VITE_BASE_PATH.
+# Secret VITE_API_URL = backend HTTPS origin (no /api). Optional var VITE_BASE_PATH.
 
 name: Deploy frontend to GitHub Pages
 
@@ -18,11 +18,11 @@ concurrency:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -38,18 +38,29 @@ jobs:
           BASE="${VITE_BASE_PATH}"
           if [ -z "$BASE" ]; then BASE="/${REPO}/"; fi
           export VITE_BASE_PATH="$BASE"
-          if [ -z "${{ secrets.VITE_API_URL }}" ]; then echo "::warning::Repository secret VITE_API_URL is unset; set it in repo Settings → Secrets." >&2; fi
+          if [ -z "${{ secrets.VITE_API_URL }}" ]; then echo "::warning::Repository secret VITE_API_URL is unset." >&2; fi
           npm ci
           npm run build
 
       - name: No Jekyll processing
         run: touch frontend/dist/.nojekyll
 
-      - name: Deploy to gh-pages branch
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: frontend/dist
-          branch: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}
-          single-commit: true
-          clean: true
+      - name: Push site to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git config --global http.postBuffer 524288000
+          git config --global http.lowSpeedLimit 0
+          git config --global http.lowSpeedTime 999999
+
+          cd frontend/dist
+          git init
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -A
+          git commit -m "Deploy ${{ github.sha }}"
+          git branch -M gh-pages
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPOSITORY}.git"
+          git push -f origin gh-pages
